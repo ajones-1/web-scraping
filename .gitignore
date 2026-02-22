@@ -14,5 +14,5 @@ wheels/
 
 # Ignore all files of the following types
 *.csv
-.DS_Store
+*.DS_Store
 *.python-version
