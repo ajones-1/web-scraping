@@ -71,26 +71,6 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
     return results
 
 
-def print_table(data: list[dict]) -> None:
-    header = (
-        f"{'Rank':<6} {'Code':<6} {'Country':<30} "
-        f"{'Gold':>6} {'Silver':>8} {'Bronze':>8} {'Total':>7}"
-    )
-    print(header)
-    print("-" * len(header))
-    for row in data:
-        print(
-            f"{row['rank']:<6} {row['code']:<6} {row['country']:<30} "
-            f"{row['gold']:>6} {row['silver']:>8} {row['bronze']:>8} {row['total']:>7}"
-        )
-    print("-" * len(header))
-    totals = {k: sum(r[k] for r in data) for k in ("gold", "silver", "bronze", "total")}
-    print(
-        f"{'':>6} {'':>6} {'Total':<30} "
-        f"{totals['gold']:>6} {totals['silver']:>8} {totals['bronze']:>8} {totals['total']:>7}"
-    )
-
-
 def save_csv(data: list[dict], path: str = "medals.csv") -> None:
     fieldnames = ["rank", "code", "country", "gold", "silver", "bronze", "total"]
     with open(path, "w", newline="") as f:
@@ -105,7 +85,6 @@ def main() -> None:
     soup = fetch_page(URL)
     data = parse_medal_table(soup)
     print(f"Found {len(data)} countries\n")
-    print_table(data)
     save_csv(data)
 
 
