@@ -1,4 +1,4 @@
-.PHONY: install run lint format clean
+.PHONY: install run lint format test clean
 
 install:
 	uv sync --all-groups
@@ -13,6 +13,9 @@ lint:
 format:
 	uv run ruff check --fix .
 	uv run ruff format .
+
+test:
+	uv run pytest
 
 clean:
 	rm -f medals.csv

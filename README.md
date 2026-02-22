@@ -2,7 +2,11 @@
 
 Scrapes the medal standings for the Milano Cortina 2026 Winter Olympics from the [official Olympics website](https://www.olympics.com/en/milano-cortina-2026/medals).
 
-Outputs a formatted table to the terminal and saves the results to `medals.csv`.
+Produces four dated CSV files:
+- `medals_YYYY-MM-DD.csv` — full medal table with gender breakdowns (16 columns)
+- `medals_men_YYYY-MM-DD.csv` — men's events only
+- `medals_women_YYYY-MM-DD.csv` — women's events only
+- `medals_mixed_YYYY-MM-DD.csv` — mixed events only
 
 ## Prerequisites
 
@@ -10,8 +14,6 @@ Outputs a formatted table to the terminal and saves the results to `medals.csv`.
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Setup
-
-Install all dependencies (including dev tools like ruff):
 
 ```sh
 make install
@@ -25,35 +27,19 @@ This runs `uv sync --all-groups`, which creates a virtual environment in `.venv/
 make run
 ```
 
-Example output:
-
-```
-Rank   Code   Country                          Gold   Silver   Bronze   Total
------------------------------------------------------------------------------
-1      NOR    Norway                             18       11       11      40
-2      USA    United States of America           11       12        9      32
-3      NED    Netherlands                        10        7        3      20
-...
-```
-
-Results are saved to `medals.csv`.
+This fetches the latest medal standings, runs a sanity check that gender breakdowns add up to the totals, and writes the four CSV files.
 
 ## Development
 
-Lint:
-
 ```sh
-make lint
+make lint       # ruff check + format check
+make format     # auto-fix lint issues and format code
+make test       # run unit and e2e tests
+make clean      # remove generated CSV files
 ```
 
-Auto-format:
+## CI
 
-```sh
-make format
-```
-
-Clean generated files:
-
-```sh
-make clean
-```
+GitHub Actions workflows run on PRs to `main`:
+- **Lint** (`.github/workflows/lint.yml`) — ruff check and format check
+- **Test** (`.github/workflows/test.yml`) — full pytest suite
