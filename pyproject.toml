@@ -14,5 +14,9 @@ dev = [
     "ruff>=0.15.2",
 ]
 
-[tool.ruff]
+[tool.ruff] # Overrides settings from default https://docs.astral.sh/ruff/configuration/
 line-length = 100
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["W", "E501", "F401"]
