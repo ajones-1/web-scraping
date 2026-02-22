@@ -5,6 +5,7 @@ import sys
 import requests
 import truststore
 from bs4 import BeautifulSoup
+from loguru import logger
 
 truststore.inject_into_ssl()
 
@@ -36,10 +37,7 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
     # The full dataset is in an embedded JSON script block.
     script_tag = soup.find("script", attrs={"type": "application/json"})
     if not script_tag or not script_tag.string:
-        print(
-            "Error: no embedded JSON data found. The page structure may have changed.",
-            file=sys.stderr,
-        )
+        logger.error("Error: no embedded JSON data found. The page structure may have changed.")
         sys.exit(1)
 
     page_data = json.loads(script_tag.string)
@@ -50,7 +48,7 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
         .get("medalsTable", [])
     )
     if not medals_table:
-        print("Error: no medal table data found in JSON.", file=sys.stderr)
+        logger.error("Error: no medal table data found in JSON.")
         sys.exit(1)
 
     results = []
@@ -77,14 +75,14 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
-    print(f"\nSaved to {path}")
+    logger.info(f"Saved to {path}")
 
 
 def main() -> None:
-    print(f"Fetching medal table from {URL} ...")
+    logger.info(f"Fetching medal table from {URL} ...")
     soup = fetch_page(URL)
     data = parse_medal_table(soup)
-    print(f"Found {len(data)} countries\n")
+    logger.info(f"Found {len(data)} countries\n")
     save_csv(data)
 
 

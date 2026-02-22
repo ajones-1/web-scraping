@@ -5,6 +5,7 @@ description = "Scrape the Winter Olympics 2026 medal table from olympics.com"
 requires-python = ">=3.10"
 dependencies = [
     "beautifulsoup4>=4.14.3",
+    "loguru>=0.7.3",
     "requests>=2.32.5",
     "truststore>=0.10.4",
 ]
