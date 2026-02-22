@@ -34,7 +34,8 @@ def fetch_page(url: str) -> BeautifulSoup:
     Args:
         url: The URL of the page to fetch.
     Returns:
-        BeautifulSoup object of the page content."""
+        BeautifulSoup object of the page content.
+    """
     response = requests.get(url, headers=HEADERS, timeout=30)
     response.raise_for_status()
     return BeautifulSoup(response.text, "html.parser")
