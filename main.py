@@ -1,4 +1,5 @@
 import csv
+import json
 import sys
 
 import requests
@@ -31,39 +32,39 @@ def fetch_page(url: str) -> BeautifulSoup:
 
 
 def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
-    rows = soup.find_all("div", attrs={"data-testid": "noc-row"})
-    if not rows:
-        print("Error: no medal rows found. The page structure may have changed.", file=sys.stderr)
+    # The page uses a virtualized list that only SSR-renders ~19 rows.
+    # The full dataset is in an embedded JSON script block.
+    script_tag = soup.find("script", attrs={"type": "application/json"})
+    if not script_tag or not script_tag.string:
+        print(
+            "Error: no embedded JSON data found. The page structure may have changed.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    page_data = json.loads(script_tag.string)
+    medals_table = (
+        page_data.get("result_medals_data", {})
+        .get("initialMedals", {})
+        .get("medalStandings", {})
+        .get("medalsTable", [])
+    )
+    if not medals_table:
+        print("Error: no medal table data found in JSON.", file=sys.stderr)
         sys.exit(1)
 
     results = []
-    for rank, row in enumerate(rows, start=1):
-        cells = row.find_all("div", attrs={"role": "cell"})
-        # cells: [rank_cell, country_cell, gold, silver, bronze, total, details_button]
-        if len(cells) < 6:
-            continue
-
-        country_cell = cells[1]
-        code_span = country_cell.find("span", attrs={"translate": "no"})
-        code = code_span.get_text(strip=True) if code_span else ""
-        # The country name is in a second translate="no" span
-        name_spans = country_cell.find_all("span", attrs={"translate": "no"})
-        name = name_spans[1].get_text(strip=True) if len(name_spans) > 1 else code
-
-        gold = cells[2].get_text(strip=True)
-        silver = cells[3].get_text(strip=True)
-        bronze = cells[4].get_text(strip=True)
-        total = cells[5].get_text(strip=True)
-
+    for entry in medals_table:
+        medals = entry["medalsNumber"][0]
         results.append(
             {
-                "rank": rank,
-                "code": code,
-                "country": name,
-                "gold": int(gold),
-                "silver": int(silver),
-                "bronze": int(bronze),
-                "total": int(total),
+                "rank": entry["rank"],
+                "code": entry["organisation"],
+                "country": entry["description"],
+                "gold": medals["gold"],
+                "silver": medals["silver"],
+                "bronze": medals["bronze"],
+                "total": medals["total"],
             }
         )
 
