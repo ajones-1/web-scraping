@@ -1,6 +1,7 @@
 import csv
 import json
 import sys
+from datetime import datetime
 
 import requests
 import truststore
@@ -53,16 +54,29 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
 
     results = []
     for entry in medals_table:
-        medals = entry["medalsNumber"][0]
+        by_type = {m["type"]: m for m in entry["medalsNumber"]}
+        totals = by_type["Total"]
+        men = by_type.get("Men", {})
+        women = by_type.get("Women", {})
+        mixed = by_type.get("Mixed", {})
         results.append(
             {
                 "rank": entry["rank"],
                 "code": entry["organisation"],
                 "country": entry["description"],
-                "gold": medals["gold"],
-                "silver": medals["silver"],
-                "bronze": medals["bronze"],
-                "total": medals["total"],
+                "gold": totals["gold"],
+                "silver": totals["silver"],
+                "bronze": totals["bronze"],
+                "total": totals["total"],
+                "men_gold": men.get("gold", 0),
+                "men_silver": men.get("silver", 0),
+                "men_bronze": men.get("bronze", 0),
+                "women_gold": women.get("gold", 0),
+                "women_silver": women.get("silver", 0),
+                "women_bronze": women.get("bronze", 0),
+                "mixed_gold": mixed.get("gold", 0),
+                "mixed_silver": mixed.get("silver", 0),
+                "mixed_bronze": mixed.get("bronze", 0),
             }
         )
 
@@ -70,7 +84,24 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
 
 
 def save_csv(data: list[dict], path: str = "medals.csv") -> None:
-    fieldnames = ["rank", "code", "country", "gold", "silver", "bronze", "total"]
+    fieldnames = [
+        "rank",
+        "code",
+        "country",
+        "gold",
+        "silver",
+        "bronze",
+        "total",
+        "men_gold",
+        "men_silver",
+        "men_bronze",
+        "women_gold",
+        "women_silver",
+        "women_bronze",
+        "mixed_gold",
+        "mixed_silver",
+        "mixed_bronze",
+    ]
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -83,7 +114,9 @@ def main() -> None:
     soup = fetch_page(URL)
     data = parse_medal_table(soup)
     logger.info(f"Found {len(data)} countries\n")
-    save_csv(data)
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    save_csv(data, f"medals_{current_date}.csv")
+    logger.info("Script Completed.")
 
 
 if __name__ == "__main__":
