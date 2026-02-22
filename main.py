@@ -28,12 +28,26 @@ HEADERS = {
 
 
 def fetch_page(url: str) -> BeautifulSoup:
+    """
+    Fetch the page content and return a BeautifulSoup object.
+    Args:
+        url: The URL of the page to fetch.
+    Returns:
+        BeautifulSoup object of the page content."""
     response = requests.get(url, headers=HEADERS, timeout=30)
     response.raise_for_status()
     return BeautifulSoup(response.text, "html.parser")
 
 
 def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
+    """
+    Parse the medal table data from the page's embedded JSON.
+
+    Args:
+        soup: BeautifulSoup object of the page content.
+    Returns:
+        A list of dictionaries, each containing medal counts and related info for a country.
+    """
     # The page uses a virtualized list that only SSR-renders ~19 rows.
     # The full dataset is in an embedded JSON script block.
     script_tag = soup.find("script", attrs={"type": "application/json"})
@@ -83,6 +97,34 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
     return results
 
 
+def check_gender_totals_add_up(data: list[dict]) -> None:
+    """
+    A sanity check to ensure the total medals for each country and type match the sum of the
+    gender-specific counts. This is not a test of the code itself, but rather a check that the
+    source data is consistent and correctly parsed.
+
+    Args:
+        data: List of dictionaries containing medal counts for each country.
+    """
+    mismatches = 0
+    for row in data:
+        country = row["country"]
+        for medal in ("gold", "silver", "bronze"):
+            gender_sum = row[f"men_{medal}"] + row[f"women_{medal}"] + row[f"mixed_{medal}"]
+            if gender_sum != row[medal]:
+                logger.warning(
+                    f"{country} {medal} mismatch: men({row[f'men_{medal}']})"
+                    f" + women({row[f'women_{medal}']})"
+                    f" + mixed({row[f'mixed_{medal}']})"
+                    f" = {gender_sum}, expected {row[medal]}"
+                )
+                mismatches += 1
+    if mismatches:
+        logger.warning(f"{mismatches} gender total mismatch(es) found")
+    else:
+        logger.info("All gender totals add up correctly!")
+
+
 def save_csv(data: list[dict], path: str = "medals.csv") -> None:
     fieldnames = [
         "rank",
@@ -114,9 +156,15 @@ def main() -> None:
     soup = fetch_page(URL)
     data = parse_medal_table(soup)
     logger.info(f"Found {len(data)} countries\n")
+
+    logger.info("Running sanity checks on parsed data...")
+    check_gender_totals_add_up(data)
+
+    logger.info("Saving data to CSV...")
     current_date = datetime.now().strftime("%Y-%m-%d")
     save_csv(data, f"medals_{current_date}.csv")
-    logger.info("Script Completed.")
+
+    logger.info("Script Completed!")
 
 
 if __name__ == "__main__":
