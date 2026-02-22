@@ -3,6 +3,7 @@ import json
 import sys
 from datetime import datetime
 
+import pandas as pd
 import requests
 import truststore
 from bs4 import BeautifulSoup
@@ -151,6 +152,42 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
     logger.info(f"Saved to {path}")
 
 
+def save_gender_csvs(data: list[dict], date_str: str) -> None:
+    """
+    Create separate medal table CSVs for men, women, and mixed events.
+
+    Each CSV contains code, country, gold, silver, bronze, and total columns,
+    sorted by gold (desc), silver (desc), bronze (desc).
+
+    Args:
+        data: List of dictionaries containing medal counts for each country.
+        date_str: String to include in the filename, typically the current date.
+    """
+    df = pd.DataFrame(data)
+
+    gender_configs = {
+        "men": ("men_gold", "men_silver", "men_bronze"),
+        "women": ("women_gold", "women_silver", "women_bronze"),
+        "mixed": ("mixed_gold", "mixed_silver", "mixed_bronze"),
+    }
+
+    for gender, (gold_col, silver_col, bronze_col) in gender_configs.items():
+        gender_df = df[["code", "country", gold_col, silver_col, bronze_col]].copy()
+        gender_df = gender_df.rename(
+            columns={gold_col: "gold", silver_col: "silver", bronze_col: "bronze"}
+        )
+        gender_df["total"] = gender_df["gold"] + gender_df["silver"] + gender_df["bronze"]
+        gender_df = gender_df[gender_df["total"] > 0]
+        gender_df = gender_df.sort_values(
+            ["gold", "silver", "bronze"], ascending=False, ignore_index=True
+        )
+        gender_df.insert(0, "rank", range(1, len(gender_df) + 1))
+
+        path = f"medals_{gender}_{date_str}.csv"
+        gender_df.to_csv(path, index=False)
+        logger.info(f"Saved {gender} medals ({len(gender_df)} countries) to {path}")
+
+
 def main() -> None:
     logger.info(f"Fetching medal table from {URL} ...")
     soup = fetch_page(URL)
@@ -163,6 +200,7 @@ def main() -> None:
     logger.info("Saving data to CSV...")
     current_date = datetime.now().strftime("%Y-%m-%d")
     save_csv(data, f"medals_{current_date}.csv")
+    save_gender_csvs(data, current_date)
 
     logger.info("Script Completed!")
 
