@@ -127,6 +127,12 @@ def check_gender_totals_add_up(data: list[dict]) -> None:
 
 
 def save_csv(data: list[dict], path: str = "medals.csv") -> None:
+    """
+    Save data to a CSV file.
+    Args:
+        data: List of dictionaries containing data to save.
+        path: The file path to save the CSV to.
+    """
     fieldnames = [
         "rank",
         "code",
