@@ -72,7 +72,8 @@ class TestE2E:
     def test_total_equals_gender_sums(self, live_data):
         for row in live_data:
             assert row["total_women"] + row["total_men"] + row["total_mixed"] == row["total"], (
-                f"{row['country']}: {row['total_women']}+{row['total_men']}+{row['total_mixed']} != {row['total']}"
+                f"{row['country']}: {row['total_women']}+{row['total_men']}+{row['total_mixed']}"
+                f" != {row['total']}"
             )
 
     def test_gender_totals_add_up(self, live_data):
