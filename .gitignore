@@ -12,6 +12,9 @@ wheels/
 # VS Code settings
 .vscode/
 
+# Kiro settings
+.kiro/
+
 # Ignore all files of the following types
 *.csv
 *.DS_Store
