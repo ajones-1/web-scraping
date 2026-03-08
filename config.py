@@ -1,4 +1,4 @@
-URL = "https://www.olympics.com/en/milano-cortina-2026/medals"
+URL = "https://www.olympics.com/en/milano-cortina-2026/paralympic-games/medals"
 
 HEADERS = {
     "User-Agent": (
