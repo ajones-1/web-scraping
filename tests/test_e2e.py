@@ -31,9 +31,9 @@ class TestE2E:
         required = [
             "rank",
             "country",
-            "gold",
-            "silver",
-            "bronze",
+            "total_women",
+            "total_men",
+            "total_mixed",
             "total",
             "men_gold",
             "men_silver",
@@ -51,9 +51,9 @@ class TestE2E:
 
     def test_medal_counts_are_non_negative(self, live_data):
         medal_fields = [
-            "gold",
-            "silver",
-            "bronze",
+            "total_women",
+            "total_men",
+            "total_mixed",
             "total",
             "men_gold",
             "men_silver",
@@ -69,21 +69,26 @@ class TestE2E:
             for field in medal_fields:
                 assert row[field] >= 0, f"{row['country']} has negative {field}"
 
-    def test_total_equals_gold_silver_bronze(self, live_data):
+    def test_total_equals_gender_sums(self, live_data):
         for row in live_data:
-            assert row["gold"] + row["silver"] + row["bronze"] == row["total"], (
-                f"{row['country']}: {row['gold']}+{row['silver']}+{row['bronze']} != {row['total']}"
+            assert row["total_women"] + row["total_men"] + row["total_mixed"] == row["total"], (
+                f"{row['country']}: {row['total_women']}+{row['total_men']}+{row['total_mixed']} != {row['total']}"
             )
 
     def test_gender_totals_add_up(self, live_data):
         for row in live_data:
-            for medal in ("gold", "silver", "bronze"):
-                gender_sum = row[f"men_{medal}"] + row[f"women_{medal}"] + row[f"mixed_{medal}"]
-                assert gender_sum == row[medal], (
-                    f"{row['country']} {medal}: "
-                    f"{row[f'men_{medal}']}+{row[f'women_{medal}']}"
-                    f"+{row[f'mixed_{medal}']} != {row[medal]}"
-                )
+            women_sum = row["women_gold"] + row["women_silver"] + row["women_bronze"]
+            assert women_sum == row["total_women"], (
+                f"{row['country']} women: {women_sum} != {row['total_women']}"
+            )
+            men_sum = row["men_gold"] + row["men_silver"] + row["men_bronze"]
+            assert men_sum == row["total_men"], (
+                f"{row['country']} men: {men_sum} != {row['total_men']}"
+            )
+            mixed_sum = row["mixed_gold"] + row["mixed_silver"] + row["mixed_bronze"]
+            assert mixed_sum == row["total_mixed"], (
+                f"{row['country']} mixed: {mixed_sum} != {row['total_mixed']}"
+            )
 
     def test_ranks_are_positive(self, live_data):
         for row in live_data:
