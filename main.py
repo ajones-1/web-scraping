@@ -64,7 +64,6 @@ def parse_medal_table(soup: BeautifulSoup) -> list[dict]:
         results.append(
             {
                 "rank": entry["rank"],
-                "code": entry["organisation"],
                 "country": entry["description"],
                 "gold": totals["gold"],
                 "silver": totals["silver"],
@@ -122,7 +121,6 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
     """
     fieldnames = [
         "rank",
-        "code",
         "country",
         "women_gold",
         "men_gold",
@@ -149,7 +147,7 @@ def save_gender_csvs(data: list[dict], date_str: str) -> None:
     """
     Create separate medal table CSVs for men, women, and mixed events.
 
-    Each CSV contains code, country, gold, silver, bronze, and total columns,
+    Each CSV contains country, gold, silver, bronze, and total columns,
     sorted by gold (desc), silver (desc), bronze (desc).
 
     Args:
@@ -165,7 +163,7 @@ def save_gender_csvs(data: list[dict], date_str: str) -> None:
     }
 
     for gender, (gold_col, silver_col, bronze_col) in gender_configs.items():
-        gender_df = df[["code", "country", gold_col, silver_col, bronze_col]].copy()
+        gender_df = df[["country", gold_col, silver_col, bronze_col]].copy()
         gender_df = gender_df.rename(
             columns={gold_col: "gold", silver_col: "silver", bronze_col: "bronze"}
         )

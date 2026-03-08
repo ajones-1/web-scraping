@@ -79,7 +79,6 @@ class TestParseMedalTable:
         soup = _build_soup(SAMPLE_ENTRIES)
         data = parse_medal_table(soup)
         nor = data[0]
-        assert nor["code"] == "NOR"
         assert nor["country"] == "Norway"
         assert nor["rank"] == 1
 
@@ -180,7 +179,6 @@ class TestSaveCsv:
             fieldnames = reader.fieldnames
         expected = [
             "rank",
-            "code",
             "country",
             "women_gold",
             "men_gold",
@@ -206,9 +204,9 @@ class TestSaveCsv:
 
         with open(path) as f:
             rows = list(csv.DictReader(f))
-        assert rows[0]["code"] == "NOR"
+        assert rows[0]["country"] == "Norway"
         assert rows[0]["gold"] == "14"
-        assert rows[2]["code"] == "BEL"
+        assert rows[2]["country"] == "Belgium"
 
 
 # --- save_gender_csvs ---
@@ -233,7 +231,7 @@ class TestSaveGenderCsvs:
 
         men_df = pd.read_csv(tmp_path / "medals_men_2026-01-01.csv")
         # BEL has no men's medals, only mixed
-        assert "BEL" not in men_df["code"].values
+        assert "Belgium" not in men_df["country"].values
 
     def test_sorted_by_gold_desc(self, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
@@ -252,7 +250,7 @@ class TestSaveGenderCsvs:
         save_gender_csvs(data, "2026-01-01")
 
         men_df = pd.read_csv(tmp_path / "medals_men_2026-01-01.csv")
-        expected_cols = ["rank", "code", "country", "gold", "silver", "bronze", "total"]
+        expected_cols = ["rank", "country", "gold", "silver", "bronze", "total"]
         assert list(men_df.columns) == expected_cols
 
     def test_total_column_is_sum(self, tmp_path, monkeypatch):
