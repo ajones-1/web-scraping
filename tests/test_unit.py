@@ -86,9 +86,9 @@ class TestParseMedalTable:
         soup = _build_soup(SAMPLE_ENTRIES)
         data = parse_medal_table(soup)
         nor = data[0]
-        assert nor["gold"] == 14
-        assert nor["silver"] == 7
-        assert nor["bronze"] == 8
+        assert nor["total_women"] == 9
+        assert nor["total_men"] == 18
+        assert nor["total_mixed"] == 2
         assert nor["total"] == 29
 
     def test_gender_breakdown(self):
@@ -142,7 +142,7 @@ class TestCheckGenderTotals:
     def test_warns_on_mismatch(self):
         soup = _build_soup(SAMPLE_ENTRIES)
         data = parse_medal_table(soup)
-        data[0]["gold"] = 999  # break the total
+        data[0]["total"] = 999  # break the total
         sink = io.StringIO()
         handler_id = logger.add(sink, format="{message}")
         try:
@@ -189,9 +189,9 @@ class TestSaveCsv:
             "women_bronze",
             "men_bronze",
             "mixed_bronze",
-            "gold",
-            "silver",
-            "bronze",
+            "total_women",
+            "total_men",
+            "total_mixed",
             "total",
         ]
         assert fieldnames == expected
@@ -205,7 +205,7 @@ class TestSaveCsv:
         with open(path) as f:
             rows = list(csv.DictReader(f))
         assert rows[0]["country"] == "Norway"
-        assert rows[0]["gold"] == "14"
+        assert rows[0]["total"] == "29"
         assert rows[2]["country"] == "Belgium"
 
 
