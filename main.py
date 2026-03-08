@@ -124,10 +124,6 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
         "rank",
         "code",
         "country",
-        "gold",
-        "silver",
-        "bronze",
-        "total",
         "women_gold",
         "men_gold",
         "mixed_gold",
@@ -137,6 +133,10 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
         "women_bronze",
         "men_bronze",
         "mixed_bronze",
+        "gold",
+        "silver",
+        "bronze",
+        "total",
     ]
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)

@@ -182,10 +182,6 @@ class TestSaveCsv:
             "rank",
             "code",
             "country",
-            "gold",
-            "silver",
-            "bronze",
-            "total",
             "women_gold",
             "men_gold",
             "mixed_gold",
@@ -195,6 +191,10 @@ class TestSaveCsv:
             "women_bronze",
             "men_bronze",
             "mixed_bronze",
+            "gold",
+            "silver",
+            "bronze",
+            "total",
         ]
         assert fieldnames == expected
 
