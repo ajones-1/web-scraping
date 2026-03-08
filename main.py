@@ -13,6 +13,7 @@ from config import URL, HEADERS
 
 truststore.inject_into_ssl()
 
+
 def fetch_page(url: str) -> BeautifulSoup:
     """
     Fetch the page content and return a BeautifulSoup object.
