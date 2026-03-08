@@ -30,7 +30,6 @@ class TestE2E:
     def test_all_rows_have_required_fields(self, live_data):
         required = [
             "rank",
-            "code",
             "country",
             "gold",
             "silver",
@@ -48,7 +47,7 @@ class TestE2E:
         ]
         for row in live_data:
             for field in required:
-                assert field in row, f"Missing field '{field}' in {row['code']}"
+                assert field in row, f"Missing field '{field}' in {row['country']}"
 
     def test_medal_counts_are_non_negative(self, live_data):
         medal_fields = [
@@ -86,18 +85,13 @@ class TestE2E:
                     f"+{row[f'mixed_{medal}']} != {row[medal]}"
                 )
 
-    def test_country_codes_are_three_letters(self, live_data):
-        for row in live_data:
-            assert len(row["code"]) == 3, f"Bad code: {row['code']}"
-            assert row["code"].isalpha(), f"Non-alpha code: {row['code']}"
-
     def test_ranks_are_positive(self, live_data):
         for row in live_data:
             assert row["rank"] >= 1
 
-    def test_no_duplicate_country_codes(self, live_data):
-        codes = [row["code"] for row in live_data]
-        assert len(codes) == len(set(codes))
+    def test_no_duplicate_countries(self, live_data):
+        countries = [row["country"] for row in live_data]
+        assert len(countries) == len(set(countries))
 
     def test_full_pipeline_writes_csvs(self, live_data, tmp_path, monkeypatch):
         monkeypatch.chdir(tmp_path)
