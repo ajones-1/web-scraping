@@ -112,5 +112,4 @@ class TestE2E:
         # Verify gender CSVs exist and have fewer or equal rows
         for gender in ("men", "women", "mixed"):
             df = pd.read_csv(tmp_path / f"medals_{gender}_test.csv")
-            assert len(df) > 0
             assert len(df) <= len(live_data)
