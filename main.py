@@ -128,14 +128,14 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
         "silver",
         "bronze",
         "total",
-        "men_gold",
         "women_gold",
+        "men_gold",
         "mixed_gold",
-        "men_silver",
         "women_silver",
+        "men_silver",
         "mixed_silver",
-        "men_bronze",
         "women_bronze",
+        "men_bronze",
         "mixed_bronze",
     ]
     with open(path, "w", newline="") as f:
