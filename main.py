@@ -9,23 +9,9 @@ import truststore
 from bs4 import BeautifulSoup
 from loguru import logger
 
+from config import URL, HEADERS
+
 truststore.inject_into_ssl()
-
-URL = "https://www.olympics.com/en/milano-cortina-2026/medals"
-
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "identity",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-}
 
 
 def fetch_page(url: str) -> BeautifulSoup:
@@ -143,13 +129,13 @@ def save_csv(data: list[dict], path: str = "medals.csv") -> None:
         "bronze",
         "total",
         "men_gold",
-        "men_silver",
-        "men_bronze",
         "women_gold",
-        "women_silver",
-        "women_bronze",
         "mixed_gold",
+        "men_silver",
+        "women_silver",
         "mixed_silver",
+        "men_bronze",
+        "women_bronze",
         "mixed_bronze",
     ]
     with open(path, "w", newline="") as f:

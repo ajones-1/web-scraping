@@ -1,0 +1,29 @@
+name: Scrape & Email
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-groups
+      - run: echo "DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
+      - run: make run
+
+      - name: Send medal table email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "Medal Table - ${{ env.DATE }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.SMTP_USERNAME }}
+          body: "Attached is the medal table for ${{ env.DATE }}."
+          attachments: medals_${{ env.DATE }}.csv
