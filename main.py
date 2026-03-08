@@ -179,6 +179,27 @@ def save_gender_csvs(data: list[dict], date_str: str) -> None:
         logger.info(f"Saved {gender} medals ({len(gender_df)} countries) to {path}")
 
 
+def save_summary_csv(data: list[dict], date_str: str) -> str:
+    """Save a summary CSV with total medals by gender per country."""
+    df = pd.DataFrame(data)
+    summary = pd.DataFrame(
+        {
+            "Country": df["country"],
+            "Female medals": df["women_gold"] + df["women_silver"] + df["women_bronze"],
+            "Male medals": df["men_gold"] + df["men_silver"] + df["men_bronze"],
+            "Mixed": df["mixed_gold"] + df["mixed_silver"] + df["mixed_bronze"],
+        }
+    )
+    summary["Total medals"] = summary["Female medals"] + summary["Male medals"] + summary["Mixed"]
+    summary = summary[summary["Total medals"] > 0].sort_values(
+        "Total medals", ascending=False, ignore_index=True
+    )
+    path = f"medals_summary_{date_str}.csv"
+    summary.to_csv(path, index=False)
+    logger.info(f"Saved summary ({len(summary)} countries) to {path}")
+    return path
+
+
 def main() -> None:
     logger.info(f"Fetching medal table from {URL} ...")
     soup = fetch_page(URL)
@@ -192,6 +213,7 @@ def main() -> None:
     current_date = datetime.now().strftime("%Y-%m-%d")
     save_csv(data, f"medals_{current_date}.csv")
     save_gender_csvs(data, current_date)
+    save_summary_csv(data, current_date)
 
     logger.info("Script Completed!")
 

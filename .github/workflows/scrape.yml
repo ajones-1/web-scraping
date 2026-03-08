@@ -26,4 +26,4 @@ jobs:
           to: ${{ secrets.EMAIL_TO }}
           from: ${{ secrets.SMTP_USERNAME }}
           body: "Attached is the medal table for ${{ env.DATE }}."
-          attachments: medals_${{ env.DATE }}.csv
+          attachments: medals_${{ env.DATE }}.csv,medals_summary_${{ env.DATE }}.csv
